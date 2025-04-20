@@ -55,7 +55,8 @@
                         <div class="Slider-bar" id="sliderContainer">
                             <div class="Group-25">
                                 <div class="background"></div>
-                                <div class="progress-indicator" id="progressBar"></div>
+                                <div class="progress-indicator" id="progressBar">
+                                </div>
                             </div>
                             <div class="Nob" id="sliderKnob"></div>
                         </div>
@@ -88,6 +89,80 @@
             let startX, startLeft;
             let isAnimating = false;
 
+            // Function to create a single star
+            function createStar() {
+                const star = document.createElement('div');
+                star.className = 'star';
+                // Add random speed and size classes
+                star.classList.add(`speed-${Math.floor(Math.random() * 4) + 1}`);
+                star.classList.add(`size-${Math.floor(Math.random() * 3) + 1}`);
+                
+                // Set initial random position
+                const randomX = Math.random() * 90 + 5; // Keep stars 5% away from edges
+                const randomY = Math.random() * 90 + 5;
+                star.style.left = `${randomX}%`;
+                star.style.top = `${randomY}%`;
+                
+                return star;
+            }
+
+            // Create initial stars (40 stars)
+            for (let i = 0; i < 40; i++) {
+                const star = createStar();
+                progressBar.appendChild(star);
+            }
+
+            function updateSliderPosition(percentage) {
+                // Ensure percentage is between 0 and 100
+                percentage = Math.max(0, Math.min(percentage, 100));
+                
+                const progressIndicator = document.querySelector('.progress-indicator');
+                const nob = document.querySelector('.Nob');
+                const number9 = document.querySelector('.number-9');
+                const backgroundImage = document.querySelector('.Background-image');
+                
+                // Update slider position and number
+                progressIndicator.style.width = `${percentage}%`;
+                nob.style.left = `${percentage}%`;
+                number9.textContent = Math.max(1, Math.round(percentage));
+                
+                // Change background image based on percentage
+                if (percentage >= 100) {
+                    backgroundImage.style.backgroundImage = "url('assets/gold-background.png')";
+                } else if (percentage <= 20) {
+                    backgroundImage.style.backgroundImage = "url('assets/red-background.png')";
+                } else {
+                    backgroundImage.style.backgroundImage = "url('assets/background.png')";
+                }
+            }
+
+            function handleStart(e) {
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                if (e.target === sliderKnob) {
+                    isDragging = true;
+                    startX = clientX;
+                    startLeft = parseFloat(sliderKnob.style.left) || 50;
+                } else if (e.target !== sliderKnob) {
+                    updateSliderPosition(getPercentage(clientX));
+                }
+                document.body.style.cursor = 'grabbing';
+            }
+
+            function handleMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const deltaX = clientX - startX;
+                const rect = sliderContainer.getBoundingClientRect();
+                const newLeft = startLeft + (deltaX / rect.width) * 100;
+                updateSliderPosition(newLeft);
+            }
+
+            function handleEnd() {
+                isDragging = false;
+                document.body.style.cursor = 'default';
+            }
+
             function getPercentage(clientX) {
                 const rect = sliderContainer.getBoundingClientRect();
                 const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
@@ -113,58 +188,6 @@
                 }, 1000);
             }
 
-            function updateSliderPosition(percentage) {
-                // Ensure percentage is between 0 and 100
-                percentage = Math.max(0, Math.min(percentage, 100));
-                
-                const progressIndicator = document.querySelector('.progress-indicator');
-                const nob = document.querySelector('.Nob');
-                const number9 = document.querySelector('.number-9');
-                const backgroundImage = document.querySelector('.Background-image');
-                
-                // Update slider position and number
-                progressIndicator.style.width = `${percentage}%`;
-                nob.style.left = `${percentage}%`;
-                // Show whole number between 1-100
-                number9.textContent = Math.max(1, Math.round(percentage));
-                
-                // Change background image based on percentage
-                if (percentage >= 100) {
-                    backgroundImage.style.backgroundImage = "url('assets/gold-background.png')";
-                } else if (percentage <= 20) {
-                    backgroundImage.style.backgroundImage = "url('assets/red-background.png')";
-                } else {
-                    backgroundImage.style.backgroundImage = "url('assets/background.png')";
-                }
-            }
-
-            function handleStart(e) {
-                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                if (e.target === sliderKnob) {
-                    isDragging = true;
-                    startX = clientX;
-                    startLeft = parseFloat(sliderKnob.style.left) || 9;
-                } else if (e.target !== sliderKnob) {
-                    updateSliderPosition(getPercentage(clientX));
-                }
-                document.body.style.cursor = 'grabbing';
-            }
-
-            function handleMove(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                const deltaX = clientX - startX;
-                const rect = sliderContainer.getBoundingClientRect();
-                const newLeft = startLeft + (deltaX / rect.width) * 100;
-                updateSliderPosition(newLeft);
-            }
-
-            function handleEnd() {
-                isDragging = false;
-                document.body.style.cursor = 'default';
-            }
-
             // Mouse events
             sliderContainer.addEventListener('mousedown', handleStart);
             document.addEventListener('mousemove', handleMove);
@@ -179,7 +202,7 @@
             sliderContainer.addEventListener('contextmenu', (e) => e.preventDefault());
 
             // Initialize slider position
-            updateSliderPosition(9);
+            updateSliderPosition(50);
         });
     </script>
 </body>
