@@ -170,9 +170,9 @@
                 goldBg.classList.remove('show');
 
                 // Show appropriate background based on percentage
-                if (percentage >= 100) {
+                if (percentage > 80) {
                     goldBg.classList.add('show');
-                } else if (percentage <= 20) {
+                } else if (percentage < 30) {
                     redBg.classList.add('show');
                 } else {
                     defaultBg.classList.add('show');

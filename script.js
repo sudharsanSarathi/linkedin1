@@ -9,9 +9,9 @@ function updateBackgrounds(value) {
     goldBg.classList.remove('show');
 
     // Show appropriate background based on value
-    if (value === 100) {
+    if (value > 80) {
         goldBg.classList.add('show');
-    } else if (value < 20) {
+    } else if (value < 30) {
         redBg.classList.add('show');
     } else {
         defaultBg.classList.add('show');
@@ -27,9 +27,9 @@ function updateBackground(percentage) {
     [defaultBg, redBg, goldBg].forEach(bg => bg.classList.remove('show'));
 
     // Show appropriate background based on percentage
-    if (percentage >= 100) {
+    if (percentage > 80) {
         goldBg.classList.add('show');
-    } else if (percentage < 20) {
+    } else if (percentage < 30) {
         redBg.classList.add('show');
     } else {
         defaultBg.classList.add('show');
