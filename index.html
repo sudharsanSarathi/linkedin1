@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Project</title>
+    <style>
+        @keyframes scaleAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .scale-animate {
+            animation: scaleAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        .shimmer {
+            background: linear-gradient(
+                90deg,
+                #FFFFFF 0%,
+                #FFD700 50%,
+                #FFFFFF 100%
+            );
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 1s linear infinite;
+        }
+
+        .number-9 {
+            display: inline-block;  /* Added to ensure transform works properly */
+            transform-origin: center;  /* Ensures scaling happens from the center */
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.cdnfonts.com/css/at-aero" rel="stylesheet">
+</head>
+<body>
+    <div class="Linkedin">
+        <div class="Background-image" id="backgroundImage"></div>
+        <div class="Frame-1430103159">
+            <div class="number-9" id="currentValue">9</div>
+            <div class="Frame-1430103156">
+                <div class="target-text">Set your target</div>
+                <div class="Group-1116607328">
+                    <div class="Frame-1430103158">
+                        <div class="Slider-bar" id="sliderContainer">
+                            <div class="Group-25">
+                                <div class="background"></div>
+                                <div class="progress-indicator" id="progressBar"></div>
+                            </div>
+                            <div class="Nob" id="sliderKnob"></div>
+                        </div>
+                        <div class="Frame-1430103157">
+                            <div class="start-value">0</div>
+                            <div class="End-value">100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="Appbar">
+            <div class="title-bar">
+                <div class="left-icon-title">
+                    <div class="left-icon">
+                        <img src="assets/arrow-backward.svg" alt="Back" class="arrow-backward">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderContainer = document.getElementById('sliderContainer');
+            const sliderKnob = document.getElementById('sliderKnob');
+            const progressBar = document.getElementById('progressBar');
+            const currentValue = document.getElementById('currentValue');
+            const backgroundImage = document.getElementById('backgroundImage');
+            let isDragging = false;
+            let startX, startLeft;
+            let isAnimating = false;
+
+            function getPercentage(clientX) {
+                const rect = sliderContainer.getBoundingClientRect();
+                const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+                return (x / rect.width) * 100;
+            }
+
+            function triggerAnimations() {
+                if (isAnimating) return;
+                isAnimating = true;
+                
+                // Remove existing classes to reset animations
+                currentValue.classList.remove('scale-animate', 'shimmer');
+                
+                // Force a reflow to ensure animation plays again
+                void currentValue.offsetWidth;
+                
+                // Add animation classes
+                currentValue.classList.add('scale-animate', 'shimmer');
+                
+                setTimeout(() => {
+                    currentValue.classList.remove('scale-animate', 'shimmer');
+                    isAnimating = false;
+                }, 1000);
+            }
+
+            function updateSliderPosition(percentage) {
+                // Ensure percentage is between 0 and 100
+                percentage = Math.max(0, Math.min(percentage, 100));
+                
+                const progressIndicator = document.querySelector('.progress-indicator');
+                const nob = document.querySelector('.Nob');
+                const number9 = document.querySelector('.number-9');
+                const backgroundImage = document.querySelector('.Background-image');
+                
+                // Update slider position and number
+                progressIndicator.style.width = `${percentage}%`;
+                nob.style.left = `${percentage}%`;
+                // Show whole number between 1-100
+                number9.textContent = Math.max(1, Math.round(percentage));
+                
+                // Change background image based on percentage
+                if (percentage >= 100) {
+                    backgroundImage.style.backgroundImage = "url('assets/gold-background.png')";
+                } else if (percentage <= 20) {
+                    backgroundImage.style.backgroundImage = "url('assets/red-background.png')";
+                } else {
+                    backgroundImage.style.backgroundImage = "url('assets/background.png')";
+                }
+            }
+
+            function handleStart(e) {
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                if (e.target === sliderKnob) {
+                    isDragging = true;
+                    startX = clientX;
+                    startLeft = parseFloat(sliderKnob.style.left) || 9;
+                } else if (e.target !== sliderKnob) {
+                    updateSliderPosition(getPercentage(clientX));
+                }
+                document.body.style.cursor = 'grabbing';
+            }
+
+            function handleMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const deltaX = clientX - startX;
+                const rect = sliderContainer.getBoundingClientRect();
+                const newLeft = startLeft + (deltaX / rect.width) * 100;
+                updateSliderPosition(newLeft);
+            }
+
+            function handleEnd() {
+                isDragging = false;
+                document.body.style.cursor = 'default';
+            }
+
+            // Mouse events
+            sliderContainer.addEventListener('mousedown', handleStart);
+            document.addEventListener('mousemove', handleMove);
+            document.addEventListener('mouseup', handleEnd);
+
+            // Touch events
+            sliderContainer.addEventListener('touchstart', handleStart, { passive: false });
+            document.addEventListener('touchmove', handleMove, { passive: false });
+            document.addEventListener('touchend', handleEnd);
+
+            // Prevent context menu on long press
+            sliderContainer.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // Initialize slider position
+            updateSliderPosition(9);
+        });
+    </script>
+</body>
+</html> 
