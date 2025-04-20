@@ -177,7 +177,7 @@ body {
     animation: twinkle 1.8s infinite, float-1 7s infinite;
 }
 
-/* Different star sizes - reduced by 50% */
+/* Different star sizes */
 .star.size-1 { 
     width: 0.5px; 
     height: 0.5px; 
