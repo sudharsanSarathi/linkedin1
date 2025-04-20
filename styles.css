@@ -161,6 +161,7 @@ body {
     border-radius: 50%;
     background-color: white;
     transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 /* Combine twinkle and float animations */
@@ -191,7 +192,7 @@ body {
     height: 1.5px; 
 }
 
-/* Add animation delays for more randomness */
+/* Animation delays for more randomness */
 .star.delay-1 { animation-delay: 0s, 0.5s; }
 .star.delay-2 { animation-delay: 0.2s, 1s; }
 .star.delay-3 { animation-delay: 0.4s, 1.5s; }
